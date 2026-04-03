@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bikestore_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tienda_bicicletas
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./src/main/resources/db/triggers.sql:/docker-entrypoint-initdb.d/2_triggers.sql
+      - ./src/main/resources/db/data.sql:/docker-entrypoint-initdb.d/3_data.sql
+
+volumes:
+  mysql_data:
