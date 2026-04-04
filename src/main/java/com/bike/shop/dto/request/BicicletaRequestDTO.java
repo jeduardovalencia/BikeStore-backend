@@ -1,4 +1,3 @@
-// BicicletaRequestDTO
 package com.bike.shop.dto.request;
 
 import lombok.Data;
@@ -16,4 +15,8 @@ public class BicicletaRequestDTO {
     private BigDecimal precioCosto;
     private BigDecimal precioVenta;
     private String descripcion;
+    private Integer cantidad;
+    private Integer stockMinimo;
+    private Integer stockMaximo;
+    private String imagen;
 }

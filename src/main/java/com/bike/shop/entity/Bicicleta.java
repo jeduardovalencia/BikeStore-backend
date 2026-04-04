@@ -44,4 +44,7 @@ public class Bicicleta {
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
+
+    @Column(name = "imagen")
+    private String imagen;
 }
