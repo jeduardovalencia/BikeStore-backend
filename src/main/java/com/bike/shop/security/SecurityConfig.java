@@ -51,7 +51,8 @@ public class SecurityConfig {
     "http://localhost:4200",
     "http://localhost:53429",
     "http://localhost:4201",
-    "http://localhost:4202"
+    "http://localhost:4202",
+    "https://bikestore-jeduardo.netlify.app"
 ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
