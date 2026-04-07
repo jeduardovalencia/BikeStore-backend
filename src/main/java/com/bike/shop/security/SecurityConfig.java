@@ -32,9 +32,10 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-		.requestMatchers("/api/bicicletas").permitAll()
-		.requestMatchers("/api/bicicletas/**").permitAll()
+                .requestMatchers("/api/bicicletas").permitAll()
+                .requestMatchers("/api/bicicletas/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
