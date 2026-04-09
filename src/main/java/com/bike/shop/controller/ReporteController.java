@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -35,9 +36,10 @@ public class ReporteController {
     @GetMapping("/ventas")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ReporteVentaDTO>> reporteVentas(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        return ResponseEntity.ok(reporteService.reporteVentas(fechaInicio, fechaFin));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        return ResponseEntity.ok(reporteService.reporteVentas(
+                fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59)));
     }
 
     @GetMapping("/inventario")
@@ -49,9 +51,10 @@ public class ReporteController {
     @GetMapping("/entradas-salidas")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ReporteMovimientoDTO>> reporteMovimientos(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        return ResponseEntity.ok(reporteService.reporteMovimientos(fechaInicio, fechaFin));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        return ResponseEntity.ok(reporteService.reporteMovimientos(
+                fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59)));
     }
 
     // ── Excel ─────────────────────────────────────────────
@@ -59,9 +62,9 @@ public class ReporteController {
     @GetMapping("/ventas/excel")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<byte[]> ventasExcel(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        byte[] data = reporteService.exportarVentasExcel(fechaInicio, fechaFin);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        byte[] data = reporteService.exportarVentasExcel(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
         String filename = "ventas_" + LocalDateTime.now().format(FILE_FMT) + ".xlsx";
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(
@@ -89,9 +92,9 @@ public class ReporteController {
     @GetMapping("/ventas/pdf")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<byte[]> ventasPdf(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaInicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaFin) {
-        byte[] data = reporteService.exportarVentasPdf(fechaInicio, fechaFin);
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        byte[] data = reporteService.exportarVentasPdf(fechaInicio.atStartOfDay(), fechaFin.atTime(23, 59, 59));
         String filename = "ventas_" + LocalDateTime.now().format(FILE_FMT) + ".pdf";
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)

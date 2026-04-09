@@ -2,6 +2,7 @@ package com.bike.shop.controller;
 
 import com.bike.shop.dto.request.RechazarVentaRequestDTO;
 import com.bike.shop.dto.request.VentaRequestDTO;
+import com.bike.shop.dto.response.SeguimientoVentaDTO;
 import com.bike.shop.dto.response.VentaResponseDTO;
 import com.bike.shop.service.ReporteService;
 import com.bike.shop.service.VentaService;
@@ -90,6 +91,11 @@ public class VentaController {
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         ContentDisposition.attachment().filename(filename).build().toString())
                 .body(pdf);
+    }
+
+    @GetMapping("/seguimiento/{id}")
+    public ResponseEntity<SeguimientoVentaDTO> seguimiento(@PathVariable Integer id) {
+        return ResponseEntity.ok(ventaService.getSeguimiento(id));
     }
 
     @GetMapping("/pendientes-aprobacion")

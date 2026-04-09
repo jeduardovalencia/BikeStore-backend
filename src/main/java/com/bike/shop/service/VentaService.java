@@ -3,6 +3,7 @@ package com.bike.shop.service;
 import com.bike.shop.dto.response.DetalleVentaResponseDTO;
 import com.bike.shop.dto.request.DetalleVentaRequestDTO;
 import com.bike.shop.dto.request.VentaRequestDTO;
+import com.bike.shop.dto.response.SeguimientoVentaDTO;
 import com.bike.shop.dto.response.VentaResponseDTO;
 import com.bike.shop.entity.*;
 import com.bike.shop.exception.RecursoNoEncontradoException;
@@ -297,6 +298,37 @@ public class VentaService {
                 .stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public SeguimientoVentaDTO getSeguimiento(Integer id) {
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe venta con id " + id));
+
+        String observacion = null;
+        if ("rechazada".equals(venta.getEstado())) {
+            observacion = aprobacionVentaRepository.findByVentaId(id)
+                    .map(AprobacionVenta::getObservacion)
+                    .orElse(null);
+        }
+
+        List<SeguimientoVentaDTO.ProductoSeguimiento> productos =
+                detalleVentaRepository.findByVentaId(id).stream()
+                        .map(d -> new SeguimientoVentaDTO.ProductoSeguimiento(
+                                d.getBicicleta().getModelo(),
+                                d.getBicicleta().getMarca(),
+                                d.getCantidad(),
+                                d.getPrecioUnitario()))
+                        .collect(Collectors.toList());
+
+        return new SeguimientoVentaDTO(
+                venta.getId(),
+                venta.getEstado(),
+                venta.getFecha(),
+                venta.getCliente().getNombre(),
+                BigDecimal.valueOf(venta.getTotal()),
+                observacion,
+                productos
+        );
     }
 
     private VentaResponseDTO toResponseDTO(Venta v) {

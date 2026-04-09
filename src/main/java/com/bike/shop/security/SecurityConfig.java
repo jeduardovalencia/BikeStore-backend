@@ -44,6 +44,8 @@ public class SecurityConfig {
                 // Flujo de compra home: buscar cliente y registrar cliente sin JWT
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clientes/{documento}").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/clientes").permitAll()
+                // Seguimiento de pedido público (sin login)
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/ventas/seguimiento/**").permitAll()
                 // Todo lo demás requiere JWT
                 .anyRequest().authenticated()
             )
