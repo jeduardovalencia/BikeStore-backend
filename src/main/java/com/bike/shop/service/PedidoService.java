@@ -1,4 +1,3 @@
-// PedidoService
 package com.bike.shop.service;
 
 import com.bike.shop.dto.response.DetallePedidoResponseDTO;
@@ -30,6 +29,7 @@ public class PedidoService {
     private final ProveedorRepository proveedorRepository;
     private final BicicletaRepository bicicletaRepository;
     private final DetallePedidoRepository detallePedidoRepository;
+    private final AuditoriaService auditoriaService;
 
     public List<PedidoResponseDTO> listarTodos() {
         return pedidoRepository.findAll()
@@ -45,28 +45,24 @@ public class PedidoService {
     }
 
     @Transactional
-    public PedidoResponseDTO crear(PedidoRequestDTO dto) {
-        // Validar proveedor
+    public PedidoResponseDTO crear(PedidoRequestDTO dto, String username) {
         Proveedor proveedor = proveedorRepository.findById(dto.getIdProveedor())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe proveedor con id " + dto.getIdProveedor()));
 
-        // Validar detalles
         if (dto.getDetalles() == null || dto.getDetalles().isEmpty())
             throw new ValidacionException("El pedido debe tener al menos un detalle");
 
-        // Crear pedido
         Pedido pedido = new Pedido();
         pedido.setProveedor(proveedor);
         pedido.setFecha(LocalDateTime.now());
         pedido.setEstado("pendiente");
         Pedido guardado = pedidoRepository.save(pedido);
 
-        // Crear detalles
         dto.getDetalles().forEach(d -> {
             Bicicleta bicicleta = bicicletaRepository.findById(d.getCodigoBicicleta())
                     .orElseThrow(() -> new RecursoNoEncontradoException(
-                            "No existe bicicleta con código " + d.getCodigoBicicleta()));
+                            "No existe bicicleta con codigo " + d.getCodigoBicicleta()));
 
             DetallePedido detalle = new DetallePedido();
             detalle.setPedido(guardado);
@@ -75,6 +71,9 @@ public class PedidoService {
             detalle.setPrecioCostoUnitario(d.getPrecioCostoUnitario());
             detallePedidoRepository.save(detalle);
         });
+
+        auditoriaService.registrar(username, "CREAR_PEDIDO", "PEDIDOS",
+                "Pedido #" + guardado.getId() + " creado al proveedor " + proveedor.getNombre());
 
         return toResponseDTO(guardado);
     }

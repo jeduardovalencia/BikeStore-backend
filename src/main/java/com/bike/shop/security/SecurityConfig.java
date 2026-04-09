@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -32,10 +34,17 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+                // CORS preflight
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                // Login público
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/bicicletas").permitAll()
-                .requestMatchers("/api/bicicletas/**").permitAll()
+                // Catálogo público (home sin login)
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/bicicletas").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/bicicletas/**").permitAll()
+                // Flujo de compra home: buscar cliente y registrar cliente sin JWT
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clientes/{documento}").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/clientes").permitAll()
+                // Todo lo demás requiere JWT
                 .anyRequest().authenticated()
             )
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

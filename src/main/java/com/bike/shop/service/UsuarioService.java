@@ -22,6 +22,7 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditoriaService auditoriaService;
 
     public List<UsuarioResponseDTO> listarTodos() {
         return usuarioRepository.findAll()
@@ -87,10 +88,13 @@ public class UsuarioService {
         return toResponseDTO(usuarioRepository.save(u));
     }
 
-    public void eliminar(Integer id) {
-        if (!usuarioRepository.existsById(id))
-            throw new RecursoNoEncontradoException("No existe usuario con id " + id);
+    public void eliminar(Integer id, String username) {
+        Usuario u = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe usuario con id " + id));
         usuarioRepository.deleteById(id);
+        auditoriaService.registrar(username, "ELIMINAR", "USUARIOS",
+                "Usuario eliminado: " + u.getUsername() + " (id " + id + ")");
     }
 
     private UsuarioResponseDTO toResponseDTO(Usuario u) {

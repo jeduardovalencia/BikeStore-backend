@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class BicicletaService {
 
     private final BicicletaRepository bicicletaRepository;
+    private final AuditoriaService auditoriaService;
 
     public List<BicicletaResponseDTO> listarTodas() {
         return bicicletaRepository.findAll()
@@ -80,10 +81,13 @@ public class BicicletaService {
     }
 
     @Transactional
-    public void eliminar(Integer codigo) {
-        if (!bicicletaRepository.existsById(codigo))
-            throw new RecursoNoEncontradoException("No existe bicicleta con codigo " + codigo);
+    public void eliminar(Integer codigo, String username) {
+        Bicicleta b = bicicletaRepository.findById(codigo)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe bicicleta con codigo " + codigo));
         bicicletaRepository.deleteById(codigo);
+        auditoriaService.registrar(username, "ELIMINAR", "BICICLETAS",
+                "Bicicleta eliminada: " + b.getMarca() + " " + b.getModelo() + " (codigo " + codigo + ")");
     }
 
     @Transactional

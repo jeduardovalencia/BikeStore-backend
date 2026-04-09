@@ -3,6 +3,7 @@ package com.bike.shop.controller;
 import com.bike.shop.security.JwtService;
 import com.bike.shop.dto.request.LoginRequest;
 import com.bike.shop.dto.response.AuthResponse;
+import com.bike.shop.service.AuditoriaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final AuditoriaService auditoriaService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -30,6 +32,10 @@ public class AuthController {
         );
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
         String token = jwtService.generateToken(userDetails);
+
+        auditoriaService.registrar(request.getUsername(), "LOGIN", "AUTH",
+                "Login exitoso desde el sistema");
+
         return ResponseEntity.ok(new AuthResponse(token));
     }
 

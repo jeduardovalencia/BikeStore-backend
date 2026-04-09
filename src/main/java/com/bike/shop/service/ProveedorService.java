@@ -1,10 +1,8 @@
-// ProveedorService
 package com.bike.shop.service;
 
 import com.bike.shop.dto.request.ProveedorRequestDTO;
 import com.bike.shop.dto.response.ProveedorResponseDTO;
 import com.bike.shop.entity.Proveedor;
-import com.bike.shop.exception.DuplicateResourceException;
 import com.bike.shop.exception.RecursoNoEncontradoException;
 import com.bike.shop.repository.ProveedorRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +16,7 @@ import java.util.stream.Collectors;
 public class ProveedorService {
 
     private final ProveedorRepository proveedorRepository;
+    private final AuditoriaService auditoriaService;
 
     public List<ProveedorResponseDTO> listarTodos() {
         return proveedorRepository.findAll()
@@ -52,10 +51,13 @@ public class ProveedorService {
         return toResponseDTO(proveedorRepository.save(p));
     }
 
-    public void eliminar(Integer id) {
-        if (!proveedorRepository.existsById(id))
-            throw new RecursoNoEncontradoException("No existe proveedor con id " + id);
+    public void eliminar(Integer id, String username) {
+        Proveedor p = proveedorRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe proveedor con id " + id));
         proveedorRepository.deleteById(id);
+        auditoriaService.registrar(username, "ELIMINAR", "PROVEEDORES",
+                "Proveedor eliminado: " + p.getNombre() + " (id " + id + ")");
     }
 
     private ProveedorResponseDTO toResponseDTO(Proveedor p) {

@@ -13,6 +13,7 @@ import java.util.List;
 public interface VentaRepository extends JpaRepository<Venta, Integer> {
     List<Venta> findByClienteDocumento(String documento);
     List<Venta> findByEstado(String estado);
+    long countByEstado(String estado);
     List<Venta> findByFechaBetween(LocalDateTime inicio, LocalDateTime fin);
 
     @Query("SELECT dv.bicicleta.codigo, " +
